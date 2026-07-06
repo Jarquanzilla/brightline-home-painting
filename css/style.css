@@ -113,6 +113,38 @@ body {
   }
 }
 
+/* Hero mask reveal — ink panels peel away center-out to uncover the hero image */
+.hero-mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+.hero-mask span {
+  flex: 1 1 0%;
+  background: #1C2321;
+  transform-origin: 50% 0%;
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.hero-mask span:nth-child(1),
+.hero-mask span:nth-child(6) { transition-delay: 0.26s; }
+.hero-mask span:nth-child(2),
+.hero-mask span:nth-child(5) { transition-delay: 0.13s; }
+#hero-bg .hero-bg-img {
+  transform: scale(1.08);
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#hero-bg.is-revealed .hero-bg-img {
+  transform: scale(1);
+}
+#hero-bg.is-revealed .hero-mask span {
+  transform: scaleY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mask { display: none; }
+  #hero-bg .hero-bg-img { transform: none; transition: none; }
+}
+
 /* Subtle nav shadow on scroll */
 #site-nav.scrolled {
   box-shadow: 0 1px 0 rgba(28,35,33,0.08);

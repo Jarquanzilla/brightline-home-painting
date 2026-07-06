@@ -1,3 +1,12 @@
+// Hero mask reveal — ink panels peel off the hero image once the splash clears
+const heroBg = document.getElementById('hero-bg');
+const revealHero = () => {
+  if (!heroBg) return;
+  heroBg.classList.add('is-revealed');
+  const mask = heroBg.querySelector('.hero-mask');
+  if (mask) setTimeout(() => mask.remove(), 1300);
+};
+
 // Launch splash — plays once per browser session
 const splash = document.getElementById('splash');
 if (splash) {
@@ -6,6 +15,7 @@ if (splash) {
 
   if (alreadyShown || reduceMotion) {
     splash.remove();
+    requestAnimationFrame(() => requestAnimationFrame(revealHero));
   } else {
     document.documentElement.style.overflow = 'hidden';
     requestAnimationFrame(() => splash.classList.add('splash-in'));
@@ -13,6 +23,7 @@ if (splash) {
       splash.classList.add('splash-out');
       document.documentElement.style.overflow = '';
       sessionStorage.setItem('splashShown', '1');
+      revealHero();
       setTimeout(() => splash.remove(), 650);
     }, 1300);
   }
