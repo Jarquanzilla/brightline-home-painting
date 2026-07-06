@@ -102,3 +102,44 @@ document.querySelectorAll('.ba-slider').forEach((slider) => {
 // Footer year
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+// Contact form → relay to the Novallem inbox via the shared Cloudflare Worker
+const CONTACT_RELAY_URL = 'https://novallem-contact-relay.nealechristian4.workers.dev';
+const estimateForm = document.getElementById('estimate-form');
+if (estimateForm) {
+  estimateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(estimateForm);
+    const name = (data.get('name') || '').toString().trim();
+    const phone = (data.get('phone') || '').toString().trim();
+    const email = (data.get('email') || '').toString().trim();
+    const service = (data.get('service') || '').toString().trim();
+    const message = (data.get('message') || '').toString().trim();
+
+    const note = document.getElementById('form-note');
+    const button = estimateForm.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+    if (note) { note.textContent = 'Sending…'; note.className = 'text-xs text-stone text-center'; }
+
+    try {
+      const res = await fetch(CONTACT_RELAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          site: 'brightline',
+          name,
+          email,
+          business: service,
+          message: `Phone: ${phone || '—'}\nService: ${service}\n\n${message || 'No additional details.'}`,
+        }),
+      });
+      if (!res.ok) throw new Error('relay error');
+      estimateForm.innerHTML =
+        '<div class="text-center py-8"><p class="font-display text-2xl text-ink mb-2">Estimate request sent</p>' +
+        '<p class="text-sm text-stone">Thanks — we\'ll be in touch within one business day about your free estimate.</p></div>';
+    } catch {
+      if (button) button.disabled = false;
+      if (note) { note.textContent = 'Something went wrong — please call (555) 010-1234 or try again.'; note.className = 'text-xs text-red-600 text-center'; }
+    }
+  });
+}
